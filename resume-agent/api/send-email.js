@@ -7,7 +7,7 @@ import { readJson, sendError } from './_lib.js'
 export default async function handler(req, res) {
   if (req.method !== 'POST') return sendError(res, 405, 'Method not allowed')
   try {
-    const { to, subject, body, cvBase64, cvFilename } = await readJson(req)
+    const { to, subject, body, cvBase64, cvFilename, replyTo } = await readJson(req)
     if (!to || !subject || !body) return sendError(res, 400, 'Missing to/subject/body')
     if (!process.env.RESEND_API_KEY) return sendError(res, 500, 'RESEND_API_KEY not configured')
     if (!process.env.FROM_EMAIL) return sendError(res, 500, 'FROM_EMAIL not configured')
@@ -23,6 +23,9 @@ export default async function handler(req, res) {
       subject,
       text: body,
       attachments,
+      // Replies go straight to the candidate's own inbox, even though the
+      // technical sender is the verified Resend domain.
+      ...(replyTo ? { replyTo } : {}),
     })
 
     if (error) return sendError(res, 502, error.message || 'Send failed')

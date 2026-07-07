@@ -114,6 +114,7 @@ export default function App() {
       body: draft.body,
       cvBase64: cv.base64 || null,
       cvFilename: cv.filename,
+      replyTo: profile.email || undefined,
     })
     setDrafts((d) => ({ ...d, [job.id]: { ...d[job.id], status: 'sent' } }))
     setSent((prev) => [{ company: job.company, role: job.role, email: job.email, at: new Date().toISOString() }, ...prev])
